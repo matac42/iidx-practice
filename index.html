@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>IIDX Practice Menu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --border: #1e2a40;
+      --text: #e0e6f0;
+      --text-sub: #93a3c0;
+      --text-dim: #5a6a8a;
+      --accent: #60a5fa;
+      --accent-bg: #1e3a5f;
+      --noplay: #6b7280;
+      --failed: #ef4444;
+      --assist: #a855f7;
+      --easy: #22c55e;
+      --clear: #3b82f6;
+      --hard: #f59e0b;
+      --exhard: #eab308;
+      --fc: #f0abfc;
+      --tab-h: 56px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Upload Screen ── */
+    #upload-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    #upload-screen h1 {
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    #upload-screen .subtitle {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-bottom: 32px;
+    }
+
+    .drop-zone {
+      width: 100%;
+      max-width: 400px;
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 48px 24px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(96, 165, 250, 0.05);
+    }
+
+    .drop-zone .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .drop-zone .label { color: var(--text-sub); font-size: 0.9rem; }
+    .drop-zone .hint { color: var(--text-dim); font-size: 0.75rem; margin-top: 8px; }
+
+    .eagate-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+      min-height: 44px;
+      transition: border-color 0.15s;
+    }
+
+    .eagate-link:active { border-color: var(--accent); }
+
+    .eagate-link .step {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .paste-area {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
+
+    .paste-area textarea {
+      width: 100%;
+      height: 120px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 12px;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .paste-area textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .paste-area textarea::placeholder { color: var(--text-dim); }
+
+    .paste-area .paste-btn {
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .upload-steps {
+      max-width: 400px;
+      margin-top: 20px;
+      text-align: left;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+
+    .upload-steps li { margin-bottom: 4px; }
+
+    .saved-data-notice {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 10px;
+      color: var(--easy);
+      font-size: 0.85rem;
+      max-width: 400px;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s;
+    }
+
+    .saved-data-notice:active { border-color: var(--easy); }
+
+    .saved-data-notice .saved-meta {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .or-divider {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      margin-top: 16px;
+    }
+
+    #file-input { display: none; }
+
+    #parse-error {
+      color: var(--failed);
+      font-size: 0.85rem;
+      margin-top: 16px;
+      max-width: 400px;
+    }
+
+    /* ── Main App ── */
+    #app { display: none; }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .app-header h1 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .app-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-header .player-info {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .btn-update-csv {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      min-height: 36px;
+      min-width: 36px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-update-csv:active {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .tab-content {
+      padding: 12px 16px 24px;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Bottom Tab Bar ── */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: #0d1321;
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 20;
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+      padding: 6px 0;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      transition: color 0.15s;
+    }
+
+    .tab-btn .tab-icon { font-size: 1.3rem; }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn:active { opacity: 0.7; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Song Item ── */
+    .song-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a2030;
+    }
+
+    .song-item:last-child { border-bottom: none; }
+
+    .clear-badge {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .song-info { flex: 1; min-width: 0; }
+
+    .song-title {
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .song-meta {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .song-meta .level-tag {
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+
+    .song-miss {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-family: monospace;
+      text-align: right;
+    }
+
+    .song-miss .miss-label {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      min-height: 44px;
+      transition: background 0.15s;
+    }
+
+    .btn:active { background: rgba(96, 165, 250, 0.2); }
+
+    .btn-block {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* ── Filter Chips ── */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .filter-row::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      cursor: pointer;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      transition: all 0.15s;
+    }
+
+    .chip.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Stats Table ── */
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .stats-table th, .stats-table td {
+      padding: 8px 6px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-table th {
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+
+    .stats-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .stats-table .cell-zero { color: #333; }
+
+    /* ── Bar Chart ── */
+    .bar-chart { margin-top: 12px; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .bar-label {
+      flex-shrink: 0;
+      width: 28px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 20px;
+      background: #1a1f2e;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-seg {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .bar-count {
+      flex-shrink: 0;
+      width: 50px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-align: right;
+      font-family: monospace;
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .badge {
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ── Load More ── */
+    .load-more-wrap {
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Menu Section ── */
+    .menu-section { margin-bottom: 16px; }
+
+    .menu-section-title {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .menu-section-desc {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Upload Screen ── -->
+<div id="upload-screen">
+  <h1>IIDX Practice Menu</h1>
+  <p class="subtitle">SP中伝への道</p>
+
+  <div id="saved-data-area"></div>
+
+  <div id="upload-area">
+    <a class="eagate-link" href="https://p.eagate.573.jp/game/2dx/33/djdata/score_download.html" target="_blank" rel="noopener">
+      📋 e-amusementでCSVをコピー
+      <span class="step">→ ログイン → 全選択 → コピー</span>
+    </a>
+
+    <div class="paste-area">
+      <textarea id="csv-paste" placeholder="ここにCSVテキストをペースト"></textarea>
+      <button class="btn paste-btn" id="btn-paste-load">📋 ペーストしたデータを読み込む</button>
+    </div>
+
+    <div class="or-divider" style="margin-top:16px">またはCSVファイルを選択</div>
+    <div class="drop-zone" id="drop-zone" style="margin-top:12px;padding:24px 16px">
+      <div class="label" style="font-size:0.8rem">📂 ファイルを選択</div>
+    </div>
+  </div>
+
+  <input type="file" id="file-input" accept=".csv">
+  <div id="parse-error"></div>
+</div>
+
+<!-- ── Main App ── -->
+<div id="app">
+  <div class="app-header">
+    <div class="app-header-row">
+      <h1>IIDX Practice Menu</h1>
+      <button class="btn-update-csv" id="btn-update-csv">📥 CSV更新</button>
+    </div>
+    <div class="player-info" id="player-info"></div>
+  </div>
+  <input type="file" id="file-input-update" accept=".csv" style="display:none">
+
+  <div class="tab-content">
+    <!-- Tab 1: Today's Practice -->
+    <div class="tab-panel active" id="panel-menu">
+      <div class="section-header">
+        <h2>今日の練習メニュー</h2>
+        <button class="btn" id="btn-reroll">🎲 リロール</button>
+      </div>
+      <div id="menu-list"></div>
+    </div>
+
+    <!-- Tab 2: Lamp Upgrade -->
+    <div class="tab-panel" id="panel-upgrade">
+      <div class="section-header">
+        <h2>ランプ更新候補</h2>
+        <span class="badge" id="upgrade-count"></span>
+      </div>
+      <div class="filter-row" id="upgrade-filters"></div>
+      <div class="filter-row" id="upgrade-level-filters"></div>
+      <div id="upgrade-list"></div>
+      <div class="load-more-wrap" id="upgrade-more-wrap" style="display:none">
+        <button class="btn" id="btn-upgrade-more">もっと見る</button>
+      </div>
+    </div>
+
+    <!-- Tab 3: No Play -->
+    <div class="tab-panel" id="panel-noplay">
+      <div class="section-header">
+        <h2>未プレイ曲</h2>
+        <span class="badge" id="noplay-count"></span>
+      </div>
+      <div class="filter-row" id="noplay-level-filters"></div>
+      <div style="margin-bottom:12px">
+        <button class="btn" id="btn-random3">🎲 ランダム3曲</button>
+      </div>
+      <div id="random-picks" style="margin-bottom:12px"></div>
+      <div id="noplay-list"></div>
+      <div class="load-more-wrap" id="noplay-more-wrap" style="display:none">
+        <button class="btn" id="btn-noplay-more">もっと見る</button>
+      </div>
+    </div>
+
+    <!-- Tab 4: Stats -->
+    <div class="tab-panel" id="panel-stats">
+      <div class="section-header">
+        <h2>統計</h2>
+      </div>
+
+      <div class="card">
+        <div class="card-title">レベル別クリア状況</div>
+        <div class="legend" id="stats-legend"></div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">クロス集計</div>
+        <div style="overflow-x:auto">
+          <table class="stats-table" id="cross-table"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="menu">
+      <span class="tab-icon">🎯</span>
+      <span>練習</span>
+    </button>
+    <button class="tab-btn" data-tab="upgrade">
+      <span class="tab-icon">⬆️</span>
+      <span>更新</span>
+    </button>
+    <button class="tab-btn" data-tab="noplay">
+      <span class="tab-icon">🆕</span>
+      <span>未プレイ</span>
+    </button>
+    <button class="tab-btn" data-tab="stats">
+      <span class="tab-icon">📊</span>
+      <span>統計</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CSV Parser (handles quoted fields, commas in values)
+// ============================================================
+function parseCSV(text) {
+  const rows = [];
+  let i = 0;
+  const len = text.length;
+
+  while (i < len) {
+    const row = [];
+    while (i < len) {
+      if (text[i] === '"') {
+        // Quoted field
+        i++;
+        let field = '';
+        while (i < len) {
+          if (text[i] === '"') {
+            if (i + 1 < len && text[i + 1] === '"') {
+              field += '"';
+              i += 2;
+            } else {
+              i++; // closing quote
+              break;
+            }
+          } else {
+            field += text[i];
+            i++;
+          }
+        }
+        row.push(field);
+        // skip comma or newline
+        if (i < len && text[i] === ',') { i++; }
+        else if (i < len && (text[i] === '\r' || text[i] === '\n')) {
+          if (text[i] === '\r' && i + 1 < len && text[i + 1] === '\n') i += 2;
+          else i++;
+          break;
+        }
+      } else {
+        // Unquoted field
+        let field = '';
+        while (i < len && text[i] !== ',' && text[i] !== '\r' && text[i] !== '\n') {
+          field += text[i];
+          i++;
+        }
+        row.push(field);
+        if (i < len && text[i] === ',') { i++; }
+        else {
+          if (i < len && text[i] === '\r' && i + 1 < len && text[i + 1] === '\n') i += 2;
+          else if (i < len) i++;
+          break;
+        }
+      }
+    }
+    if (row.length > 1 || (row.length === 1 && row[0] !== '')) {
+      rows.push(row);
+    }
+  }
+  return rows;
+}
+
+// ============================================================
+// Data Model
+// ============================================================
+const CLEAR_TYPES = [
+  'NO PLAY', 'FAILED', 'ASSIST CLEAR', 'EASY CLEAR',
+  'CLEAR', 'HARD CLEAR', 'EX HARD CLEAR', 'FULLCOMBO CLEAR'
+];
+
+const CLEAR_COLORS = {
+  'NO PLAY': '#6b7280',
+  'FAILED': '#ef4444',
+  'ASSIST CLEAR': '#a855f7',
+  'EASY CLEAR': '#22c55e',
+  'CLEAR': '#3b82f6',
+  'HARD CLEAR': '#f59e0b',
+  'EX HARD CLEAR': '#eab308',
+  'FULLCOMBO CLEAR': '#f0abfc',
+};
+
+const CLEAR_SHORT = {
+  'NO PLAY': 'NP',
+  'FAILED': 'F',
+  'ASSIST CLEAR': 'AC',
+  'EASY CLEAR': 'EC',
+  'CLEAR': 'C',
+  'HARD CLEAR': 'HC',
+  'EX HARD CLEAR': 'EXH',
+  'FULLCOMBO CLEAR': 'FC',
+};
+
+const STORAGE_KEY = 'iidx_practice_data';
+
+let allSongs = [];
+
+function parseDifficultyBlock(cols, offset) {
+  // offset: starting column index for the difficulty block
+  // 7 columns: 難易度, スコア, PGreat, Great, ミスカウント, クリアタイプ, DJ LEVEL
+  const levelStr = cols[offset];
+  const level = levelStr && levelStr !== '0' ? parseInt(levelStr, 10) : null;
+  if (!level) return null;
+  const score = parseInt(cols[offset + 1], 10) || 0;
+  const pgreat = parseInt(cols[offset + 2], 10) || 0;
+  const great = parseInt(cols[offset + 3], 10) || 0;
+  const missStr = cols[offset + 4];
+  const miss = (missStr === '---' || missStr === '' || missStr == null) ? null : parseInt(missStr, 10);
+  const clearType = (cols[offset + 5] || 'NO PLAY').trim();
+  const djLevel = (cols[offset + 6] || '').trim();
+  return { level, score, pgreat, great, miss, clearType, djLevel };
+}
+
+function processCSV(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) throw new Error('CSVデータが不足しています');
+
+  // Check header row
+  const header = rows[0];
+  // The CSV should have version, title, genre, artist, play count, then difficulty blocks
+
+  const songs = [];
+  for (let r = 1; r < rows.length; r++) {
+    const cols = rows[r];
+    if (cols.length < 40) continue;
+
+    const version = cols[0];
+    const title = cols[1];
+    const genre = cols[2];
+    const artist = cols[3];
+    const playCount = parseInt(cols[4], 10) || 0;
+
+    // Difficulty blocks: NORMAL(5-11), HYPER(12-18), ANOTHER(19-25), LEGGENDARIA(26-32) — 0-indexed after first 5 cols
+    // Actually: 5 base cols + 5 difficulties * 7 cols = 40 + last play datetime = 41
+    // Columns: 0=ver, 1=title, 2=genre, 3=artist, 4=playcount
+    // BEGINNER: 5-11 (7 cols)
+    // NORMAL:   12-18
+    // HYPER:    19-25
+    // ANOTHER:  26-32
+    // LEGGENDARIA: 33-39
+    // Last play: 40
+
+    const another = parseDifficultyBlock(cols, 26);
+    const leggendaria = parseDifficultyBlock(cols, 33);
+
+    if (another) {
+      songs.push({
+        title, genre, artist, version, playCount,
+        ...another,
+        difficulty: 'ANOTHER',
+        id: title + '_A'
+      });
+    }
+    if (leggendaria) {
+      songs.push({
+        title, genre, artist, version, playCount,
+        ...leggendaria,
+        difficulty: 'LEGGENDARIA',
+        id: title + '_L'
+      });
+    }
+  }
+
+  if (songs.length === 0) throw new Error('有効な曲データが見つかりませんでした');
+  return songs;
+}
+
+// ============================================================
+// localStorage
+// ============================================================
+function saveToStorage(songs) {
+  try {
+    const data = { songs, savedAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) { /* storage full, ignore */ }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+// ============================================================
+// File Upload
+// ============================================================
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const parseError = document.getElementById('parse-error');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  parseError.textContent = '';
+
+  // Try Shift_JIS first, then UTF-8
+  const reader1 = new FileReader();
+  reader1.onload = () => {
+    try {
+      const text = reader1.result;
+      if (text.includes('\ufffd') || text.includes('�')) {
+        throw new Error('encoding');
+      }
+      allSongs = processCSV(text);
+      saveToStorage(allSongs);
+      initApp();
+    } catch (e) {
+      if (e.message === 'encoding') {
+        const reader2 = new FileReader();
+        reader2.onload = () => {
+          try {
+            allSongs = processCSV(reader2.result);
+            saveToStorage(allSongs);
+            initApp();
+          } catch (e2) {
+            parseError.textContent = 'CSVの解析に失敗しました: ' + e2.message;
+          }
+        };
+        reader2.readAsText(file, 'UTF-8');
+      } else {
+        parseError.textContent = 'CSVの解析に失敗しました: ' + e.message;
+      }
+    }
+  };
+  reader1.readAsText(file, 'Shift_JIS');
+}
+
+// ============================================================
+// Paste CSV
+// ============================================================
+document.getElementById('btn-paste-load').addEventListener('click', () => {
+  parseError.textContent = '';
+  const text = document.getElementById('csv-paste').value.trim();
+  if (!text) {
+    parseError.textContent = 'テキストが入力されていません';
+    return;
+  }
+  try {
+    allSongs = processCSV(text);
+    saveToStorage(allSongs);
+    initApp();
+  } catch (e) {
+    parseError.textContent = 'CSVの解析に失敗しました: ' + e.message;
+  }
+});
+
+// ============================================================
+// Saved Data (show on upload screen if available)
+// ============================================================
+function checkSavedData() {
+  const saved = loadFromStorage();
+  const area = document.getElementById('saved-data-area');
+  if (!saved) { area.innerHTML = ''; return; }
+
+  const date = new Date(saved.savedAt);
+  const dateStr = date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  const count = saved.songs.length;
+  const played = saved.songs.filter(s => s.clearType !== 'NO PLAY').length;
+
+  area.innerHTML = `
+    <div class="saved-data-notice" id="btn-load-saved">
+      <div>
+        <div>💾 前回のデータを使う</div>
+        <div class="saved-meta">${dateStr} 保存 ・ ${played}/${count} 曲プレイ済み</div>
+      </div>
+    </div>
+    <div class="or-divider">または新しいCSVを読み込む ↓</div>
+  `;
+
+  document.getElementById('btn-load-saved').addEventListener('click', () => {
+    allSongs = saved.songs;
+    initApp();
+  });
+}
+
+checkSavedData();
+
+// ============================================================
+// CSV Update (from app header)
+// ============================================================
+const fileInputUpdate = document.getElementById('file-input-update');
+document.getElementById('btn-update-csv').addEventListener('click', () => fileInputUpdate.click());
+fileInputUpdate.addEventListener('change', () => {
+  if (fileInputUpdate.files.length) handleFile(fileInputUpdate.files[0]);
+});
+
+// ============================================================
+// App Init
+// ============================================================
+let appInitialized = false;
+
+function initApp() {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const total = allSongs.length;
+  const played = allSongs.filter(s => s.clearType !== 'NO PLAY').length;
+  document.getElementById('player-info').textContent = `${played} / ${total} 曲プレイ済み`;
+
+  if (!appInitialized) {
+    initTabs();
+    appInitialized = true;
+  }
+  renderMenu();
+  initUpgradeTab();
+  initNoPlayTab();
+  renderStats();
+}
+
+// ============================================================
+// Tab Navigation
+// ============================================================
+function initTabs() {
+  const btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// ============================================================
+// Utility
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function clearTypeIndex(ct) {
+  return CLEAR_TYPES.indexOf(ct);
+}
+
+function renderSongItem(song) {
+  const color = CLEAR_COLORS[song.clearType] || CLEAR_COLORS['NO PLAY'];
+  const missText = song.miss !== null ? song.miss : '-';
+  const diffTag = song.difficulty === 'LEGGENDARIA' ? 'L' : 'A';
+  return `
+    <div class="song-item">
+      <div class="clear-badge" style="background:${color}"></div>
+      <div class="song-info">
+        <div class="song-title">${escapeHtml(song.title)}</div>
+        <div class="song-meta">
+          <span class="level-tag">☆${song.level} ${diffTag}</span>
+          <span>${CLEAR_SHORT[song.clearType] || song.clearType}</span>
+          <span>${escapeHtml(song.artist)}</span>
+        </div>
+      </div>
+      <div class="song-miss">
+        <div>${missText}</div>
+        <div class="miss-label">miss</div>
+      </div>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// Tab 1: Practice Menu
+// ============================================================
+function generateMenu() {
+  const sections = [];
+
+  // Warmup: ☆11 CLEAR or below (but not FAILED/NO PLAY) → go for HARD
+  const warmup = shuffle(allSongs.filter(s =>
+    s.level === 11 &&
+    ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
+  )).slice(0, 2);
+  sections.push({
+    icon: '🔥', title: 'ウォームアップ',
+    desc: '☆11 ハード狙い',
+    songs: warmup
+  });
+
+  // Almost there: FAILED with low miss count
+  const almostThere = allSongs
+    .filter(s => s.clearType === 'FAILED' && s.miss !== null && s.level >= 11)
+    .sort((a, b) => a.miss - b.miss)
+    .slice(0, 20);
+  const almostPicked = shuffle(almostThere).slice(0, 3);
+  sections.push({
+    icon: '💪', title: 'あと少し',
+    desc: 'FAILED 低ミス（クリア射程圏内）',
+    songs: almostPicked
+  });
+
+  // Lamp upgrade candidates
+  const upgradeCandidates = allSongs.filter(s => {
+    if (s.level < 11) return false;
+    if (s.clearType === 'EASY CLEAR' || s.clearType === 'CLEAR') return true;
+    return false;
+  });
+  const upgradeByMiss = upgradeCandidates
+    .filter(s => s.miss !== null)
+    .sort((a, b) => a.miss - b.miss);
+  const upgradePicked = shuffle(upgradeByMiss.slice(0, 20)).slice(0, 3);
+  sections.push({
+    icon: '⬆️', title: 'ランプ更新',
+    desc: 'EASY→CLEAR, CLEAR→HARD 候補',
+    songs: upgradePicked
+  });
+
+  // Unplayed ☆12
+  const unplayed12 = shuffle(allSongs.filter(s =>
+    s.level === 12 && s.clearType === 'NO PLAY'
+  )).slice(0, 2);
+  sections.push({
+    icon: '🆕', title: '未プレイ☆12',
+    desc: 'まずは触ってみよう',
+    songs: unplayed12
+  });
+
+  return sections;
+}
+
+function renderMenu() {
+  const sections = generateMenu();
+  const container = document.getElementById('menu-list');
+  let html = '';
+  for (const sec of sections) {
+    html += `<div class="menu-section">
+      <div class="menu-section-title">${sec.icon} ${sec.title}</div>
+      <div class="menu-section-desc">${sec.desc}</div>
+      <div class="card">`;
+    if (sec.songs.length === 0) {
+      html += '<div class="empty-state">該当曲なし</div>';
+    } else {
+      for (const s of sec.songs) html += renderSongItem(s);
+    }
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+document.getElementById('btn-reroll').addEventListener('click', renderMenu);
+
+// ============================================================
+// Tab 2: Lamp Upgrade Candidates
+// ============================================================
+let upgradeState = { transition: 'all', level: 'all', shown: 50 };
+
+const TRANSITIONS = [
+  { key: 'all', label: 'すべて' },
+  { key: 'easy_clear', label: 'EC→C' },
+  { key: 'clear_hard', label: 'C→HC' },
+  { key: 'failed_easy', label: 'F→EC' },
+  { key: 'hard_exhard', label: 'HC→EXH' },
+];
+
+function initUpgradeTab() {
+  // Transition filters
+  const fRow = document.getElementById('upgrade-filters');
+  fRow.innerHTML = TRANSITIONS.map(t =>
+    `<button class="chip ${t.key === 'all' ? 'active' : ''}" data-val="${t.key}">${t.label}</button>`
+  ).join('');
+  fRow.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    fRow.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    upgradeState.transition = chip.dataset.val;
+    upgradeState.shown = 50;
+    renderUpgradeList();
+  });
+
+  // Level filters
+  const levels = [...new Set(allSongs.map(s => s.level))].sort((a, b) => a - b);
+  const lRow = document.getElementById('upgrade-level-filters');
+  lRow.innerHTML = `<button class="chip active" data-val="all">全☆</button>` +
+    levels.map(l => `<button class="chip" data-val="${l}">☆${l}</button>`).join('');
+  lRow.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    lRow.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    upgradeState.level = chip.dataset.val;
+    upgradeState.shown = 50;
+    renderUpgradeList();
+  });
+
+  document.getElementById('btn-upgrade-more').addEventListener('click', () => {
+    upgradeState.shown += 50;
+    renderUpgradeList();
+  });
+
+  renderUpgradeList();
+}
+
+function getUpgradeSongs() {
+  let songs = allSongs.filter(s => {
+    if (s.clearType === 'NO PLAY' || s.clearType === 'FULLCOMBO CLEAR' || s.clearType === 'EX HARD CLEAR') return false;
+    return true;
+  });
+
+  // Filter by transition
+  const tr = upgradeState.transition;
+  if (tr === 'easy_clear') songs = songs.filter(s => s.clearType === 'EASY CLEAR');
+  else if (tr === 'clear_hard') songs = songs.filter(s => s.clearType === 'CLEAR');
+  else if (tr === 'failed_easy') songs = songs.filter(s => s.clearType === 'FAILED');
+  else if (tr === 'hard_exhard') songs = songs.filter(s => s.clearType === 'HARD CLEAR');
+
+  // Filter by level
+  if (upgradeState.level !== 'all') {
+    const lv = parseInt(upgradeState.level, 10);
+    songs = songs.filter(s => s.level === lv);
+  }
+
+  // Sort by miss count ascending (null last)
+  songs.sort((a, b) => {
+    if (a.miss === null && b.miss === null) return 0;
+    if (a.miss === null) return 1;
+    if (b.miss === null) return -1;
+    return a.miss - b.miss;
+  });
+
+  return songs;
+}
+
+function renderUpgradeList() {
+  const songs = getUpgradeSongs();
+  const shown = songs.slice(0, upgradeState.shown);
+  document.getElementById('upgrade-count').textContent = songs.length + '曲';
+  const container = document.getElementById('upgrade-list');
+  if (shown.length === 0) {
+    container.innerHTML = '<div class="empty-state">該当曲なし</div>';
+  } else {
+    container.innerHTML = '<div class="card">' + shown.map(renderSongItem).join('') + '</div>';
+  }
+  const moreWrap = document.getElementById('upgrade-more-wrap');
+  moreWrap.style.display = songs.length > upgradeState.shown ? '' : 'none';
+}
+
+// ============================================================
+// Tab 3: No Play
+// ============================================================
+let noplayState = { level: 'all', shown: 50 };
+
+function initNoPlayTab() {
+  const levels = [11, 12];
+  const lRow = document.getElementById('noplay-level-filters');
+  lRow.innerHTML = `<button class="chip active" data-val="all">全☆</button>` +
+    levels.map(l => `<button class="chip" data-val="${l}">☆${l}</button>`).join('');
+  lRow.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    lRow.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    noplayState.level = chip.dataset.val;
+    noplayState.shown = 50;
+    renderNoPlayList();
+  });
+
+  document.getElementById('btn-random3').addEventListener('click', renderRandom3);
+  document.getElementById('btn-noplay-more').addEventListener('click', () => {
+    noplayState.shown += 50;
+    renderNoPlayList();
+  });
+
+  renderNoPlayList();
+}
+
+function getNoPlaySongs() {
+  let songs = allSongs.filter(s => s.clearType === 'NO PLAY' && s.level >= 11);
+  if (noplayState.level !== 'all') {
+    const lv = parseInt(noplayState.level, 10);
+    songs = songs.filter(s => s.level === lv);
+  }
+  return songs;
+}
+
+function renderNoPlayList() {
+  const songs = getNoPlaySongs();
+  const total = allSongs.filter(s => s.level >= 11).length;
+  document.getElementById('noplay-count').textContent = `${songs.length} / ${total}`;
+  const shown = songs.slice(0, noplayState.shown);
+  const container = document.getElementById('noplay-list');
+  if (shown.length === 0) {
+    container.innerHTML = '<div class="empty-state">該当曲なし</div>';
+  } else {
+    container.innerHTML = '<div class="card">' + shown.map(renderSongItem).join('') + '</div>';
+  }
+  const moreWrap = document.getElementById('noplay-more-wrap');
+  moreWrap.style.display = songs.length > noplayState.shown ? '' : 'none';
+}
+
+function renderRandom3() {
+  const songs = getNoPlaySongs();
+  const picked = shuffle(songs).slice(0, 3);
+  const container = document.getElementById('random-picks');
+  if (picked.length === 0) {
+    container.innerHTML = '<div class="empty-state">未プレイ曲なし</div>';
+  } else {
+    container.innerHTML = '<div class="card"><div class="card-title">ランダムピック</div>' +
+      picked.map(renderSongItem).join('') + '</div>';
+  }
+}
+
+// ============================================================
+// Tab 4: Stats
+// ============================================================
+function renderStats() {
+  renderLegend();
+  renderBarChart();
+  renderCrossTable();
+}
+
+function renderLegend() {
+  const container = document.getElementById('stats-legend');
+  container.innerHTML = CLEAR_TYPES.map(ct =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${CLEAR_COLORS[ct]}"></div>${CLEAR_SHORT[ct]}</div>`
+  ).join('');
+}
+
+function renderBarChart() {
+  const levels = [...new Set(allSongs.map(s => s.level))].sort((a, b) => a - b);
+  const container = document.getElementById('bar-chart');
+  let html = '';
+
+  for (const lv of levels) {
+    const lvSongs = allSongs.filter(s => s.level === lv);
+    const total = lvSongs.length;
+    if (total === 0) continue;
+
+    const counts = {};
+    CLEAR_TYPES.forEach(ct => counts[ct] = 0);
+    lvSongs.forEach(s => counts[s.clearType] = (counts[s.clearType] || 0) + 1);
+
+    const played = total - (counts['NO PLAY'] || 0);
+
+    let segs = '';
+    for (const ct of CLEAR_TYPES) {
+      const pct = (counts[ct] / total) * 100;
+      if (pct > 0) {
+        segs += `<div class="bar-seg" style="width:${pct}%;background:${CLEAR_COLORS[ct]}" title="${ct}: ${counts[ct]}"></div>`;
+      }
+    }
+
+    html += `<div class="bar-row">
+      <div class="bar-label">☆${lv}</div>
+      <div class="bar-track">${segs}</div>
+      <div class="bar-count">${played}/${total}</div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function renderCrossTable() {
+  const levels = [...new Set(allSongs.map(s => s.level))].sort((a, b) => a - b);
+  const table = document.getElementById('cross-table');
+
+  let html = '<thead><tr><th>☆</th>';
+  for (const ct of CLEAR_TYPES) {
+    html += `<th>${CLEAR_SHORT[ct]}</th>`;
+  }
+  html += '<th>計</th></tr></thead><tbody>';
+
+  for (const lv of levels) {
+    const lvSongs = allSongs.filter(s => s.level === lv);
+    const total = lvSongs.length;
+    if (total === 0) continue;
+
+    const counts = {};
+    CLEAR_TYPES.forEach(ct => counts[ct] = 0);
+    lvSongs.forEach(s => counts[s.clearType] = (counts[s.clearType] || 0) + 1);
+
+    html += `<tr><td>☆${lv}</td>`;
+    for (const ct of CLEAR_TYPES) {
+      const v = counts[ct];
+      html += `<td class="${v === 0 ? 'cell-zero' : ''}" style="${v > 0 ? 'color:' + CLEAR_COLORS[ct] : ''}">${v}</td>`;
+    }
+    html += `<td>${total}</td></tr>`;
+  }
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+</script>
+</body>
+</html>
