@@ -603,6 +603,37 @@
     .sp12-status.loading { color: var(--text-dim); }
     .sp12-status.error { color: var(--failed); }
 
+    /* ── Advice ── */
+    .advice-box {
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .advice-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #93c5fd;
+      margin-bottom: 8px;
+    }
+    .advice-item {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+    .advice-item strong { color: var(--text-main); }
+    .advice-stat {
+      display: inline-block;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 1px 6px;
+      margin: 0 2px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
     /* ── Bingo ── */
     .bingo-controls {
       display: flex;
@@ -636,7 +667,7 @@
 
     .bingo-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 3px;
       max-width: 400px;
       margin: 12px auto;
@@ -645,6 +676,7 @@
     .bingo-cell {
       aspect-ratio: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       background: var(--surface);
@@ -670,13 +702,8 @@
       background: rgba(0,0,0,0.15);
     }
 
-    .bingo-cell.free {
-      background: var(--accent-bg);
-      border-color: var(--accent);
-    }
-
     .bingo-cell-title {
-      font-size: 0.5rem;
+      font-size: 0.55rem;
       text-align: center;
       overflow: hidden;
       display: -webkit-box;
@@ -685,6 +712,15 @@
       word-break: break-all;
       line-height: 1.3;
       position: relative;
+      z-index: 1;
+    }
+
+    .bingo-cell-rank {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 0.4rem;
+      color: var(--text-sub);
       z-index: 1;
     }
 
@@ -749,6 +785,7 @@
   <div class="tab-content">
     <!-- Tab 1: Today's Practice -->
     <div class="tab-panel active" id="panel-menu">
+      <div id="advice-box"></div>
       <div class="section-header">
         <h2>今日の練習メニュー</h2>
         <button class="btn" id="btn-reroll">🎲 リロール</button>
@@ -1080,9 +1117,9 @@ async function fetchSP12Data() {
 
   const SP12_API = 'https://sp12.iidx.app/api/v1/sheets';
   const fetchers = [
+    { name: 'proxy', fn: () => fetch('/sp12/sheets', { signal: AbortSignal.timeout(10000) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }) },
     { name: 'direct', fn: () => fetch(SP12_API, { signal: AbortSignal.timeout(10000) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }) },
     { name: 'corsproxy', fn: () => fetch('https://corsproxy.io/?' + encodeURIComponent(SP12_API), { signal: AbortSignal.timeout(10000) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }) },
-    { name: 'allorigins', fn: () => fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(SP12_API), { signal: AbortSignal.timeout(15000) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => JSON.parse(d.contents)) },
   ];
 
   for (const { name, fn } of fetchers) {
@@ -1361,6 +1398,7 @@ async function initApp() {
 
   // Render immediately with existing data
   renderMenu();
+  renderAdvice();
   initUpgradeTab();
   initNoPlayTab();
   renderStats();
@@ -1385,6 +1423,7 @@ async function initApp() {
 
       // Re-render all tabs with enriched data
       renderMenu();
+      renderAdvice();
       renderUpgradeList();
       renderNoPlayList();
       renderStats();
@@ -1634,6 +1673,97 @@ function renderMenu() {
 
 document.getElementById('btn-reroll').addEventListener('click', renderMenu);
 
+function renderAdvice() {
+  const box = document.getElementById('advice-box');
+  if (!box) return;
+
+  const lv12 = allSongs.filter(s => s.level === 12);
+  if (lv12.length === 0) { box.innerHTML = ''; return; }
+
+  const total12 = lv12.length;
+  const noPlay12 = lv12.filter(s => s.clearType === 'NO PLAY').length;
+  const failed12 = lv12.filter(s => s.clearType === 'FAILED').length;
+  const easy12 = lv12.filter(s => s.clearType === 'EASY CLEAR').length;
+  const clear12 = lv12.filter(s => s.clearType === 'CLEAR').length;
+  const hard12 = lv12.filter(s => s.clearType === 'HARD CLEAR' || s.clearType === 'EX HARD CLEAR' || s.clearType === 'FULLCOMBO CLEAR').length;
+  const noPlayRate = Math.round(noPlay12 / total12 * 100);
+  const playedRate = 100 - noPlayRate;
+
+  // SP12 rank stats
+  let sp12Stats = '';
+  if (sp12Available) {
+    const sp12Songs = lv12.filter(s => s.sp12);
+    const byRank = {};
+    for (const s of sp12Songs) {
+      const r = s.sp12.hard;
+      if (r >= 19) continue;
+      if (!byRank[r]) byRank[r] = { total: 0, hard: 0, clear: 0, easy: 0, fail: 0, np: 0 };
+      byRank[r].total++;
+      if (s.clearType === 'NO PLAY') byRank[r].np++;
+      else if (s.clearType === 'FAILED') byRank[r].fail++;
+      else if (s.clearType === 'EASY CLEAR') byRank[r].easy++;
+      else if (s.clearType === 'CLEAR') byRank[r].clear++;
+      else byRank[r].hard++;
+    }
+
+    // Find the frontier: highest rank where player has some clears but also many fails/NP
+    let frontierRank = -1;
+    for (let r = 18; r >= 0; r--) {
+      if (byRank[r] && byRank[r].total > 0) {
+        const clearRate = (byRank[r].hard + byRank[r].clear + byRank[r].easy) / byRank[r].total;
+        if (clearRate > 0.1 && clearRate < 0.8) { frontierRank = r; break; }
+      }
+    }
+    if (frontierRank >= 0 && byRank[frontierRank]) {
+      const fr = byRank[frontierRank];
+      const frName = SP12_RANKS[frontierRank];
+      sp12Stats = `<div class="advice-item">現在の攻略ライン: <strong>${frName}</strong>（クリア${fr.hard + fr.clear + fr.easy}/${fr.total}曲、未クリア${fr.fail + fr.np}曲）</div>`;
+    }
+  }
+
+  const tips = [];
+
+  // Tip 1: Unplayed rate
+  if (noPlayRate > 30) {
+    tips.push(`☆12未プレイ率 <span class="advice-stat">${noPlayRate}%</span> → <strong>まず触る曲を増やそう</strong>。地力表下位からRANDOMで回すのが最効率`);
+  } else if (noPlayRate > 15) {
+    tips.push(`☆12未プレイ率 <span class="advice-stat">${noPlayRate}%</span> → 順調に減ってきてる。引き続き未プレイ曲を消化しよう`);
+  } else {
+    tips.push(`☆12プレイ率 <span class="advice-stat">${playedRate}%</span> → 十分な経験値。ランプ更新に集中しよう`);
+  }
+
+  // Tip 2: EASY→HARD balance
+  if (easy12 + clear12 > 0 && hard12 < (easy12 + clear12) * 0.3) {
+    tips.push(`EASY/CLEAR <span class="advice-stat">${easy12 + clear12}曲</span> HARD以上 <span class="advice-stat">${hard12}曲</span> → <strong>HARD埋めを意識</strong>。BP60以下ならHARD圏内`);
+  }
+
+  // Tip 3: Failed songs
+  if (failed12 > 10) {
+    tips.push(`FAILED <span class="advice-stat">${failed12}曲</span> → 粘着せず幅広く。ミスが少ないFAILED曲から再挑戦が効率的`);
+  }
+
+  // Tip 4: General practice tips
+  const generalTips = [
+    '集中力が切れたら即終了。疲れた練習は逆効果',
+    'RANDOM常用で癖防止＆対応力UP。段位本番だけ正規/MIRRORで',
+    '1曲への粘着は2〜3回まで。癖がつくと逆に遠回り',
+    '調子いい日はEASY特攻、悪い日は下位曲のHARD埋め',
+    'ウォーミングアップに20〜30分。低難度から段階的に上げる',
+  ];
+  const todayTip = generalTips[new Date().getDate() % generalTips.length];
+  tips.push(`<strong>今日のコツ:</strong> ${todayTip}`);
+
+  let html = '<div class="advice-box">';
+  html += '<div class="advice-title">📊 分析 & アドバイス</div>';
+  if (sp12Stats) html += sp12Stats;
+  for (const tip of tips) {
+    html += `<div class="advice-item">• ${tip}</div>`;
+  }
+  html += '</div>';
+
+  box.innerHTML = html;
+}
+
 // ============================================================
 // Tab 2: Lamp Upgrade Candidates
 // ============================================================
@@ -1867,58 +1997,88 @@ function isLampAchieved(clearType, targetLamp) {
   return currentIdx >= targetIdx;
 }
 
-function generateBingoCard(rank, targetLamp) {
-  // Gather songs: primary rank + adjacent rank (個人差)
-  let pool = allSongs.filter(s =>
-    s.level === 12 && s.sp12 && s.sp12.hard === rank
+function smartTargetLamp(song, userRank) {
+  const ct = song.clearType;
+  const songRank = song.sp12 ? song.sp12.hard : 18;
+  // relDiff > 0: song is easier, < 0: song is harder
+  const relDiff = songRank - userRank;
+
+  if (ct === 'FULLCOMBO CLEAR') return null;
+  if (ct === 'EX HARD CLEAR') return 'FULLCOMBO CLEAR';
+  if (ct === 'HARD CLEAR') return 'EX HARD CLEAR';
+
+  if (ct === 'CLEAR') {
+    return 'HARD CLEAR';
+  }
+
+  if (ct === 'EASY CLEAR') {
+    // Easier song → aim higher
+    return relDiff >= 2 ? 'HARD CLEAR' : 'CLEAR';
+  }
+
+  if (ct === 'ASSIST CLEAR') {
+    return 'EASY CLEAR';
+  }
+
+  // NO PLAY or FAILED
+  if (relDiff >= 3) return 'HARD CLEAR';   // much easier
+  if (relDiff >= 1) return 'CLEAR';         // somewhat easier
+  return 'EASY CLEAR';                      // at or above level
+}
+
+function generateBingoCard() {
+  const rank = userSkillLevel >= 0 ? userSkillLevel : 18;
+
+  // Wide pool: ±4 ranks, exclude FULLCOMBO and songs with no upgrade
+  const pool = allSongs.filter(s =>
+    s.level === 12 && s.sp12 && s.sp12.hard < 19 &&
+    Math.abs(s.sp12.hard - rank) <= 4 &&
+    s.clearType !== 'FULLCOMBO CLEAR'
   );
 
-  // If not enough, include adjacent ±1 rank
-  if (pool.length < 24) {
-    const adjacent = allSongs.filter(s =>
-      s.level === 12 && s.sp12 &&
-      s.sp12.hard !== rank &&
-      Math.abs(s.sp12.hard - rank) <= 1 &&
-      s.sp12.hard < 19
-    );
-    pool = [...pool, ...adjacent];
+  if (pool.length < 9) return null;
+
+  // Categorize by relative difficulty
+  const easier = pool.filter(s => s.sp12.hard - rank >= 2);  // easier songs
+  const atLevel = pool.filter(s => Math.abs(s.sp12.hard - rank) <= 1); // around level
+  const harder = pool.filter(s => rank - s.sp12.hard >= 2);  // harder songs
+
+  // Aim for balanced mix: ~3 easier + ~4 at level + ~2 harder
+  const pick = (arr, n) => shuffle(arr).slice(0, n);
+  let selected = [];
+
+  const easyPick = pick(easier, Math.min(3, easier.length));
+  const hardPick = pick(harder, Math.min(2, harder.length));
+  const levelPick = pick(atLevel.filter(s => !easyPick.includes(s) && !hardPick.includes(s)),
+    9 - easyPick.length - hardPick.length);
+  selected = [...easyPick, ...levelPick, ...hardPick];
+
+  // Fill remaining from full pool if needed
+  if (selected.length < 9) {
+    const remaining = pool.filter(s => !selected.includes(s));
+    selected = [...selected, ...pick(remaining, 9 - selected.length)];
   }
 
-  // If still not enough, expand to ±2
-  if (pool.length < 24) {
-    const wider = allSongs.filter(s =>
-      s.level === 12 && s.sp12 &&
-      Math.abs(s.sp12.hard - rank) <= 2 &&
-      s.sp12.hard < 19 &&
-      !pool.includes(s)
-    );
-    pool = [...pool, ...wider];
-  }
+  if (selected.length < 9) return null;
 
-  if (pool.length < 24) return null; // not enough songs
+  // Shuffle final order
+  selected = shuffle(selected);
 
-  const shuffled = shuffle(pool);
-  const selected = shuffled.slice(0, 24); // 24 songs + 1 FREE = 25
-
-  const songs = [];
-  for (let i = 0; i < 24; i++) {
-    const s = selected[i];
-    songs.push({
+  const songs = selected.map(s => {
+    const target = smartTargetLamp(s, rank);
+    return {
       title: s.title,
       id: s.id,
-      marked: isLampAchieved(s.clearType, targetLamp),
+      marked: false,
+      currentLamp: s.clearType,
+      targetLamp: target,
       rankString: s.sp12 ? s.sp12.hardString : ''
-    });
-    // Insert FREE at center (index 12)
-    if (i === 11) {
-      songs.push({ title: 'FREE', id: '__FREE__', marked: true, rankString: '' });
-    }
-  }
+    };
+  });
 
   return {
     rank,
     rankString: SP12_RANKS[rank],
-    targetLamp,
     songs,
     createdAt: new Date().toISOString()
   };
@@ -1929,19 +2089,19 @@ function countBingoLines(songs) {
   let lines = 0;
   const lineIndices = [];
 
-  // 5 rows
-  for (let r = 0; r < 5; r++) {
-    const indices = [r*5, r*5+1, r*5+2, r*5+3, r*5+4];
+  // 3 rows
+  for (let r = 0; r < 3; r++) {
+    const indices = [r*3, r*3+1, r*3+2];
     if (indices.every(i => grid[i])) { lines++; lineIndices.push(indices); }
   }
-  // 5 columns
-  for (let c = 0; c < 5; c++) {
-    const indices = [c, c+5, c+10, c+15, c+20];
+  // 3 columns
+  for (let c = 0; c < 3; c++) {
+    const indices = [c, c+3, c+6];
     if (indices.every(i => grid[i])) { lines++; lineIndices.push(indices); }
   }
   // 2 diagonals
-  const diag1 = [0,6,12,18,24];
-  const diag2 = [4,8,12,16,20];
+  const diag1 = [0,4,8];
+  const diag2 = [2,4,6];
   if (diag1.every(i => grid[i])) { lines++; lineIndices.push(diag1); }
   if (diag2.every(i => grid[i])) { lines++; lineIndices.push(diag2); }
 
@@ -1951,10 +2111,10 @@ function countBingoLines(songs) {
 function refreshBingoFromSongData(bingoState) {
   if (!bingoState) return;
   for (const cell of bingoState.songs) {
-    if (cell.id === '__FREE__') continue;
     const song = allSongs.find(s => s.id === cell.id);
-    if (song) {
-      cell.marked = isLampAchieved(song.clearType, bingoState.targetLamp);
+    if (song && cell.targetLamp) {
+      cell.marked = isLampAchieved(song.clearType, cell.targetLamp);
+      cell.currentLamp = song.clearType;
     }
   }
   saveBingoState(bingoState);
@@ -1970,70 +2130,55 @@ function renderBingoTab() {
 
   const state = loadBingoState();
 
-  // Controls
+  // Controls - just a generate button
+  const skillLabel = userSkillLevel >= 0 ? SP12_RANKS[userSkillLevel] : '未推定';
   let html = `<div class="bingo-controls">`;
-  html += `<select class="bingo-select" id="bingo-rank">`;
-  for (const opt of BINGO_RANK_OPTIONS) {
-    const sel = state && state.rank === opt.val ? ' selected' : '';
-    html += `<option value="${opt.val}"${sel}>地力${opt.label}</option>`;
-  }
-  html += `</select>`;
-
-  html += `<select class="bingo-select" id="bingo-lamp">`;
-  const lampOptions = ['HARD CLEAR', 'EX HARD CLEAR', 'CLEAR', 'EASY CLEAR'];
-  for (const lamp of lampOptions) {
-    const sel = state && state.targetLamp === lamp ? ' selected' : '';
-    html += `<option value="${lamp}"${sel}>${CLEAR_SHORT[lamp]}</option>`;
-  }
-  html += `</select>`;
-
+  html += `<span style="color:#94a3b8;font-size:0.85rem;">推定地力: ${skillLabel} 付近から出題</span>`;
   html += `<button class="btn" id="btn-new-bingo">🎲 生成</button>`;
   html += `</div>`;
 
-  if (state && state.songs && state.songs.length === 25) {
+  if (state && state.songs && state.songs.length === 9) {
     const cleared = state.songs.filter(s => s.marked).length;
     const { lines, lineIndices } = countBingoLines(state.songs);
     const lineSet = new Set();
     lineIndices.forEach(li => li.forEach(i => lineSet.add(i)));
 
-    html += `<div class="bingo-progress">${cleared}/25 クリア・${lines} ビンゴライン</div>`;
+    html += `<div class="bingo-progress">${cleared}/9 クリア・${lines} ビンゴライン</div>`;
 
-    html += `<div class="bingo-rank-info">${state.rankString} / ${CLEAR_SHORT[state.targetLamp]}目標</div>`;
+    html += `<div class="bingo-rank-info">${state.rankString} 付近</div>`;
 
     html += `<div class="bingo-grid">`;
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 9; i++) {
       const cell = state.songs[i];
-      const isFree = cell.id === '__FREE__';
       const classes = ['bingo-cell'];
       if (cell.marked) classes.push('marked');
-      if (isFree) classes.push('free');
       if (lineSet.has(i) && cell.marked) classes.push('bingo-line-highlight');
 
-      const bg = cell.marked && !isFree
-        ? `background:${CLEAR_COLORS[state.targetLamp]};`
-        : '';
+      const targetColor = cell.targetLamp ? CLEAR_COLORS[cell.targetLamp] : '#22c55e';
+      const bg = cell.marked ? `background:${targetColor};` : '';
+      const targetLabel = cell.targetLamp ? CLEAR_SHORT[cell.targetLamp] : '';
+      const targetBorder = !cell.marked && cell.targetLamp ? `border-color:${targetColor};` : '';
 
-      html += `<div class="${classes.join(' ')}" data-idx="${i}" style="${bg}">
+      html += `<div class="${classes.join(' ')}" data-idx="${i}" style="${bg}${targetBorder}">
         <span class="bingo-cell-title">${escapeHtml(cell.title)}</span>
+        <span class="bingo-cell-rank"><span style="color:${targetColor}">${targetLabel}</span> ${cell.rankString || ''}</span>
       </div>`;
     }
     html += `</div>`;
   } else {
-    html += `<div class="empty-state">ランクとランプを選んでカードを生成してください</div>`;
+    html += `<div class="empty-state">ボタンを押してビンゴカードを生成</div>`;
   }
 
   container.innerHTML = html;
 
   // Event: generate new card
   document.getElementById('btn-new-bingo').addEventListener('click', () => {
-    const rank = parseInt(document.getElementById('bingo-rank').value, 10);
-    const lamp = document.getElementById('bingo-lamp').value;
-    const card = generateBingoCard(rank, lamp);
+    const card = generateBingoCard();
     if (!card) {
       container.querySelector('.empty-state')?.remove();
       const msg = document.createElement('div');
       msg.className = 'empty-state';
-      msg.textContent = 'このランクの曲が足りません。隣のランクを試してください。';
+      msg.textContent = '未クリアの曲が足りません。';
       container.appendChild(msg);
       return;
     }
@@ -2047,7 +2192,6 @@ function renderBingoTab() {
       const idx = parseInt(el.dataset.idx, 10);
       const currentState = loadBingoState();
       if (!currentState || !currentState.songs[idx]) return;
-      if (currentState.songs[idx].id === '__FREE__') return;
       currentState.songs[idx].marked = !currentState.songs[idx].marked;
       saveBingoState(currentState);
       renderBingoTab();
