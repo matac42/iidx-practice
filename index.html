@@ -4,37 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>IIDX Practice Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    /* ============================================================
+       DADS (Digital Agency Design System) inspired tokens
+       ============================================================ */
     :root {
-      --bg: #0a0e1a;
-      --surface: #111827;
-      --border: #1e2a40;
-      --text: #e0e6f0;
-      --text-sub: #93a3c0;
-      --text-dim: #5a6a8a;
-      --accent: #60a5fa;
-      --accent-bg: #1e3a5f;
-      --noplay: #6b7280;
-      --failed: #ef4444;
-      --assist: #a855f7;
-      --easy: #22c55e;
-      --clear: #3b82f6;
-      --hard: #f59e0b;
-      --exhard: #eab308;
-      --fc: #f0abfc;
+      /* Primitive Colors */
+      --blue-50: #e8f1fe;
+      --blue-100: #d9e6ff;
+      --blue-200: #c5d7fb;
+      --blue-300: #9db7f9;
+      --blue-400: #7096f8;
+      --blue-500: #4979f5;
+      --blue-600: #3460fb;
+      --blue-700: #264af4;
+      --blue-800: #0031d8;
+      --blue-900: #0017c1;
+      --blue-1000: #00118f;
+      --blue-1100: #000071;
+
+      --red-500: #ff5454;
+      --red-700: #fa0000;
+      --red-800: #ec0000;
+      --red-900: #ce0000;
+
+      --green-500: #2cac6e;
+      --green-600: #259d63;
+      --green-700: #1d8b56;
+      --green-800: #197a4b;
+
+      --yellow-300: #ffd43d;
+      --yellow-700: #b78f00;
+      --yellow-800: #a58000;
+
+      --orange-600: #fb5b01;
+      --orange-700: #e25100;
+      --orange-800: #c74700;
+
+      --purple-500: #a565f8;
+      --purple-600: #8843e1;
+      --purple-700: #6f23d0;
+
+      --magenta-500: #f137f1;
+      --magenta-600: #db00db;
+
+      /* Neutral */
+      --white: #ffffff;
+      --black: #000000;
+      --gray-50: #f2f2f2;
+      --gray-100: #e6e6e6;
+      --gray-200: #cccccc;
+      --gray-300: #b3b3b3;
+      --gray-400: #999999;
+      --gray-500: #7f7f7f;
+      --gray-600: #666666;
+      --gray-700: #4d4d4d;
+      --gray-800: #333333;
+      --gray-900: #1a1a1a;
+
+      /* Semantic */
+      --color-bg: var(--white);
+      --color-surface: var(--white);
+      --color-surface-secondary: var(--gray-50);
+      --color-border: var(--gray-100);
+      --color-border-strong: var(--gray-200);
+      --color-text: var(--gray-900);
+      --color-text-secondary: var(--gray-600);
+      --color-text-muted: var(--gray-400);
+      --color-primary: var(--blue-800);
+      --color-primary-light: var(--blue-50);
+      --color-primary-hover: var(--blue-900);
+      --color-link: var(--blue-1000);
+
+      /* Clear type colors (adjusted for light theme visibility) */
+      --noplay: var(--gray-400);
+      --failed: var(--red-700);
+      --assist: var(--purple-600);
+      --easy: var(--green-600);
+      --clear: var(--blue-600);
+      --hard: var(--orange-700);
+      --exhard: var(--yellow-700);
+      --fc: var(--magenta-600);
+
+      /* Elevation */
+      --elevation-1: 0 2px 8px 1px rgba(0,0,0,0.08), 0 1px 4px 0 rgba(0,0,0,0.12);
+      --elevation-2: 0 2px 12px 2px rgba(0,0,0,0.08), 0 1px 6px 0 rgba(0,0,0,0.12);
+      --elevation-3: 0 4px 16px 3px rgba(0,0,0,0.08), 0 1px 6px 0 rgba(0,0,0,0.12);
+
+      /* Typography */
+      --font-sans: "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "Noto Sans Mono", monospace;
+
+      /* Layout */
       --tab-h: 56px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
     }
 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: var(--font-sans);
+      background: var(--color-surface-secondary);
+      color: var(--color-text);
       min-height: 100vh;
       min-height: 100dvh;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
       -webkit-tap-highlight-color: transparent;
+      font-size: 16px;
+      line-height: 1.7;
+      letter-spacing: 0.01em;
+    }
+
+    /* DADS Focus Style */
+    :focus-visible {
+      outline: 4px solid var(--black);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 0 0 2px var(--yellow-300);
     }
 
     /* ── Upload Screen ── */
@@ -45,42 +136,44 @@
       justify-content: center;
       min-height: 100vh;
       min-height: 100dvh;
-      padding: 24px;
+      padding: 32px 24px;
       text-align: center;
+      background: var(--white);
     }
 
     #upload-screen h1 {
-      font-size: 1.6rem;
-      font-weight: 300;
-      color: var(--accent);
-      letter-spacing: 0.08em;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: 0.02em;
       margin-bottom: 8px;
     }
 
     #upload-screen .subtitle {
-      color: var(--text-dim);
-      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      font-size: 0.875rem;
       margin-bottom: 32px;
     }
 
     .drop-zone {
       width: 100%;
       max-width: 400px;
-      border: 2px dashed var(--border);
-      border-radius: 16px;
+      border: 2px dashed var(--color-border-strong);
+      border-radius: var(--radius-lg);
       padding: 48px 24px;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
+      background: var(--color-surface-secondary);
     }
 
     .drop-zone.dragover {
-      border-color: var(--accent);
-      background: rgba(96, 165, 250, 0.05);
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
     }
 
     .drop-zone .icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .drop-zone .label { color: var(--text-sub); font-size: 0.9rem; }
-    .drop-zone .hint { color: var(--text-dim); font-size: 0.75rem; margin-top: 8px; }
+    .drop-zone .label { color: var(--color-text-secondary); font-size: 0.875rem; }
+    .drop-zone .hint { color: var(--color-text-muted); font-size: 0.75rem; margin-top: 8px; }
 
     .eagate-link {
       display: inline-flex;
@@ -88,40 +181,43 @@
       gap: 8px;
       margin-top: 24px;
       padding: 12px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--accent);
+      background: var(--white);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      color: var(--color-link);
       text-decoration: none;
-      font-size: 0.85rem;
-      min-height: 44px;
-      transition: border-color 0.15s;
+      font-size: 0.875rem;
+      min-height: 48px;
+      max-width: 400px;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      box-shadow: var(--elevation-1);
     }
 
-    .eagate-link:active { border-color: var(--accent); }
+    .eagate-link:active { border-color: var(--color-primary); }
 
     .eagate-link .step {
       display: block;
-      font-size: 0.7rem;
-      color: var(--text-dim);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
       margin-top: 2px;
     }
 
     .paste-area {
       width: 100%;
       max-width: 400px;
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .paste-area textarea {
       width: 100%;
       height: 120px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: monospace;
-      font-size: 0.75rem;
+      background: var(--white);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
       padding: 12px;
       resize: vertical;
       transition: border-color 0.2s;
@@ -129,10 +225,11 @@
 
     .paste-area textarea:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-light);
     }
 
-    .paste-area textarea::placeholder { color: var(--text-dim); }
+    .paste-area textarea::placeholder { color: var(--color-text-muted); }
 
     .paste-area .paste-btn {
       margin-top: 8px;
@@ -141,51 +238,52 @@
 
     .upload-steps {
       max-width: 400px;
-      margin-top: 20px;
+      margin-top: 24px;
       text-align: left;
-      font-size: 0.75rem;
-      color: var(--text-dim);
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
       line-height: 1.8;
     }
 
     .upload-steps li { margin-bottom: 4px; }
 
     .saved-data-notice {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      border-radius: 10px;
-      color: var(--easy);
-      font-size: 0.85rem;
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: var(--white);
+      border: 1px solid var(--green-600);
+      border-radius: var(--radius-md);
+      color: var(--green-800);
+      font-size: 0.875rem;
       max-width: 400px;
       cursor: pointer;
-      min-height: 44px;
+      min-height: 48px;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: border-color 0.15s;
+      transition: box-shadow 0.15s;
+      box-shadow: var(--elevation-1);
     }
 
-    .saved-data-notice:active { border-color: var(--easy); }
+    .saved-data-notice:active { box-shadow: var(--elevation-2); }
 
     .saved-data-notice .saved-meta {
-      font-size: 0.7rem;
-      color: var(--text-dim);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
       margin-top: 2px;
     }
 
     .or-divider {
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      margin-top: 16px;
+      color: var(--color-text-muted);
+      font-size: 0.8125rem;
+      margin-top: 20px;
     }
 
     #file-input { display: none; }
 
     #parse-error {
-      color: var(--failed);
-      font-size: 0.85rem;
+      color: var(--red-800);
+      font-size: 0.875rem;
       margin-top: 16px;
       max-width: 400px;
     }
@@ -197,16 +295,17 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      background: var(--bg);
-      padding: 12px 16px 8px;
-      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
 
     .app-header h1 {
-      font-size: 1.1rem;
-      font-weight: 400;
-      color: var(--accent);
-      letter-spacing: 0.05em;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: 0.02em;
     }
 
     .app-header-row {
@@ -216,34 +315,35 @@
     }
 
     .app-header .player-info {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      margin-top: 2px;
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
     }
 
     .btn-update-csv {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.7rem;
+      background: var(--white);
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-family: var(--font-sans);
       cursor: pointer;
       min-height: 36px;
       min-width: 36px;
       display: flex;
       align-items: center;
       gap: 4px;
-      transition: color 0.15s, border-color 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
 
     .btn-update-csv:active {
-      color: var(--accent);
-      border-color: var(--accent);
+      background: var(--color-primary);
+      color: var(--white);
     }
 
     .tab-content {
-      padding: 12px 16px 24px;
+      padding: 16px 16px 24px;
     }
 
     .tab-panel { display: none; }
@@ -257,10 +357,11 @@
       right: 0;
       height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
       padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: #0d1321;
-      border-top: 1px solid var(--border);
+      background: var(--white);
+      border-top: 1px solid var(--color-border);
       display: flex;
       z-index: 20;
+      box-shadow: 0 -1px 4px rgba(0,0,0,0.06);
     }
 
     .tab-btn {
@@ -272,8 +373,9 @@
       gap: 2px;
       background: none;
       border: none;
-      color: var(--text-dim);
-      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      font-size: 0.6875rem;
+      font-family: var(--font-sans);
       padding: 6px 0;
       cursor: pointer;
       min-height: 44px;
@@ -281,104 +383,138 @@
       transition: color 0.15s;
     }
 
-    .tab-btn .tab-icon { font-size: 1.3rem; }
-    .tab-btn.active { color: var(--accent); }
+    .tab-btn .tab-icon { font-size: 1.25rem; }
+    .tab-btn.active { color: var(--color-primary); font-weight: 700; }
     .tab-btn:active { opacity: 0.7; }
 
     /* ── Cards ── */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      box-shadow: var(--elevation-1);
     }
 
     .card-title {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
       margin-bottom: 12px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border);
     }
 
     /* ── Song Item ── */
     .song-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #1a2030;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
     }
 
     .song-item:last-child { border-bottom: none; }
 
     .clear-badge {
       flex-shrink: 0;
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
     }
 
     .song-info { flex: 1; min-width: 0; }
 
     .song-title {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
+      font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: var(--color-text);
     }
 
     .song-meta {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      margin-top: 2px;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .song-meta .level-tag {
-      background: var(--accent-bg);
-      color: var(--accent);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 0.65rem;
-      font-weight: 600;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.6875rem;
+      font-weight: 700;
     }
 
     .song-miss {
       flex-shrink: 0;
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      font-family: monospace;
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
       text-align: right;
     }
 
     .song-miss .miss-label {
-      font-size: 0.6rem;
-      color: var(--text-dim);
+      font-size: 0.625rem;
+      color: var(--color-text-muted);
     }
 
-    /* ── Buttons ── */
+    /* ── Buttons (DADS-style) ── */
+    /* Primary (filled) */
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      background: var(--accent-bg);
-      color: var(--accent);
-      border: 1px solid rgba(96, 165, 250, 0.3);
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-size: 0.85rem;
+      background: var(--color-primary);
+      color: var(--white);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: 10px 20px;
+      font-size: 0.875rem;
+      font-family: var(--font-sans);
+      font-weight: 700;
       cursor: pointer;
-      min-height: 44px;
+      min-height: 48px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn:active {
+      background: var(--color-primary-hover);
+      border-color: var(--color-primary-hover);
+    }
+
+    /* Secondary (outlined) */
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--white);
+      color: var(--color-primary);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: 10px 20px;
+      font-size: 0.875rem;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 48px;
       transition: background 0.15s;
     }
 
-    .btn:active { background: rgba(96, 165, 250, 0.2); }
+    .btn-secondary:active {
+      background: var(--color-primary-light);
+    }
 
     .btn-block {
       display: flex;
@@ -400,81 +536,82 @@
 
     .chip {
       flex-shrink: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
-      color: var(--text-sub);
+      background: var(--white);
+      border: 1px solid var(--color-border-strong);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.8125rem;
+      font-family: var(--font-sans);
+      color: var(--color-text-secondary);
       cursor: pointer;
-      min-height: 32px;
+      min-height: 36px;
       display: flex;
       align-items: center;
       transition: all 0.15s;
     }
 
     .chip.active {
-      background: var(--accent-bg);
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--white);
+      font-weight: 700;
     }
 
     /* ── Stats Table ── */
     .stats-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.75rem;
+      font-size: 0.8125rem;
     }
 
     .stats-table th, .stats-table td {
-      padding: 8px 6px;
+      padding: 10px 8px;
       text-align: center;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--color-border);
     }
 
     .stats-table th {
-      color: var(--text-dim);
-      font-weight: 500;
-      font-size: 0.65rem;
-      text-transform: uppercase;
+      color: var(--color-text-muted);
+      font-weight: 700;
+      font-size: 0.6875rem;
       letter-spacing: 0.04em;
       position: sticky;
       top: 0;
-      background: var(--surface);
+      background: var(--white);
     }
 
     .stats-table td:first-child {
       text-align: left;
-      font-weight: 600;
-      color: var(--text-sub);
+      font-weight: 700;
+      color: var(--color-text-secondary);
     }
 
-    .stats-table .cell-zero { color: #333; }
+    .stats-table .cell-zero { color: var(--color-border-strong); }
 
     /* ── Bar Chart ── */
-    .bar-chart { margin-top: 12px; }
+    .bar-chart { margin-top: 16px; }
 
     .bar-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .bar-label {
       flex-shrink: 0;
-      width: 28px;
-      font-size: 0.75rem;
-      color: var(--text-dim);
+      width: 32px;
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
       text-align: right;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .bar-track {
       flex: 1;
-      height: 20px;
-      background: #1a1f2e;
-      border-radius: 4px;
+      height: 24px;
+      background: var(--color-surface-secondary);
+      border-radius: var(--radius-sm);
       overflow: hidden;
       display: flex;
     }
@@ -486,11 +623,11 @@
 
     .bar-count {
       flex-shrink: 0;
-      width: 50px;
-      font-size: 0.7rem;
-      color: var(--text-dim);
+      width: 56px;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
       text-align: right;
-      font-family: monospace;
+      font-family: var(--font-mono);
     }
 
     /* ── Section header ── */
@@ -498,21 +635,22 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .section-header h2 {
-      font-size: 1rem;
-      font-weight: 500;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-text);
     }
 
     .badge {
-      background: var(--accent-bg);
-      color: var(--accent);
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 700;
     }
 
     /* ── Load More ── */
@@ -524,114 +662,117 @@
     /* ── Empty State ── */
     .empty-state {
       text-align: center;
-      padding: 32px 16px;
-      color: var(--text-dim);
-      font-size: 0.85rem;
+      padding: 40px 16px;
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
     }
 
     /* ── Legend ── */
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 12px;
       margin: 12px 0;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 4px;
-      font-size: 0.65rem;
-      color: var(--text-dim);
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
     }
 
     .legend-dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       flex-shrink: 0;
     }
 
     /* ── Menu Section ── */
-    .menu-section { margin-bottom: 16px; }
+    .menu-section { margin-bottom: 20px; }
 
     .menu-section-title {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-text);
+      font-weight: 700;
       margin-bottom: 4px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .menu-section-desc {
-      font-size: 0.7rem;
-      color: var(--text-dim);
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
       margin-bottom: 8px;
     }
 
     /* ── SP12 Badge ── */
     .sp12-badge {
       display: inline-block;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: #fff;
+      padding: 1px 6px;
+      border-radius: var(--radius-sm);
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--white);
       white-space: nowrap;
     }
 
     /* ── Skill Level ── */
     .skill-level {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      margin-top: 2px;
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
     }
     .skill-level .rank-highlight {
-      color: var(--hard);
-      font-weight: 600;
+      color: var(--orange-700);
+      font-weight: 700;
     }
 
     /* ── SP12 Status ── */
     .sp12-status {
-      font-size: 0.65rem;
-      color: var(--text-dim);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
       margin-left: 8px;
     }
-    .sp12-status.loaded { color: var(--easy); }
-    .sp12-status.loading { color: var(--text-dim); }
-    .sp12-status.error { color: var(--failed); }
+    .sp12-status.loaded { color: var(--green-700); }
+    .sp12-status.loading { color: var(--color-text-muted); }
+    .sp12-status.error { color: var(--red-800); }
 
     /* ── Advice ── */
     .advice-box {
-      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
-      border: 1px solid rgba(59,130,246,0.3);
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
+      background: var(--color-primary-light);
+      border: 1px solid var(--blue-200);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 20px;
     }
     .advice-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #93c5fd;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-primary);
       margin-bottom: 8px;
     }
     .advice-item {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      line-height: 1.5;
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
+      line-height: 1.7;
       margin-bottom: 4px;
     }
-    .advice-item strong { color: var(--text-main); }
+    .advice-item strong { color: var(--color-text); }
     .advice-stat {
       display: inline-block;
-      background: rgba(255,255,255,0.08);
-      border-radius: 4px;
-      padding: 1px 6px;
+      background: var(--white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 1px 8px;
       margin: 0 2px;
-      font-weight: 600;
-      color: var(--text-main);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--color-text);
     }
 
     /* ── Bingo ── */
@@ -639,36 +780,37 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       align-items: center;
     }
 
     .bingo-select {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
+      background: var(--white);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: var(--font-sans);
       padding: 8px 12px;
-      font-size: 0.8rem;
+      font-size: 0.875rem;
       min-height: 36px;
       appearance: none;
       -webkit-appearance: none;
       cursor: pointer;
     }
-    .bingo-select:focus { outline: none; border-color: var(--accent); }
+    .bingo-select:focus { outline: none; border-color: var(--color-primary); }
 
     .bingo-progress {
       text-align: center;
-      font-size: 0.85rem;
-      color: var(--accent);
+      font-size: 0.875rem;
+      color: var(--color-primary);
       margin-bottom: 8px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .bingo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
+      gap: 4px;
       max-width: 400px;
       margin: 12px auto;
     }
@@ -679,31 +821,32 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      background: var(--white);
+      border: 2px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
       padding: 4px;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s;
       position: relative;
+      box-shadow: var(--elevation-1);
     }
 
     .bingo-cell:active { opacity: 0.7; }
 
     .bingo-cell.marked {
-      border-color: rgba(255,255,255,0.2);
+      border-color: transparent;
     }
 
     .bingo-cell.marked::after {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 5px;
-      background: rgba(0,0,0,0.15);
+      border-radius: calc(var(--radius-md) - 1px);
+      background: rgba(255,255,255,0.2);
     }
 
     .bingo-cell-title {
-      font-size: 0.55rem;
+      font-size: 0.5625rem;
       text-align: center;
       overflow: hidden;
       display: -webkit-box;
@@ -713,14 +856,15 @@
       line-height: 1.3;
       position: relative;
       z-index: 1;
+      font-weight: 700;
     }
 
     .bingo-cell-rank {
       position: absolute;
-      bottom: 2px;
-      right: 2px;
-      font-size: 0.4rem;
-      color: var(--text-sub);
+      bottom: 3px;
+      right: 4px;
+      font-size: 0.4375rem;
+      color: var(--color-text-muted);
       z-index: 1;
     }
 
@@ -734,8 +878,8 @@
 
     .bingo-rank-info {
       text-align: center;
-      font-size: 0.75rem;
-      color: var(--text-sub);
+      font-size: 0.8125rem;
+      color: var(--color-text-secondary);
       margin-bottom: 8px;
     }
   </style>
@@ -760,9 +904,9 @@
       <button class="btn paste-btn" id="btn-paste-load">📋 ペーストしたデータを読み込む</button>
     </div>
 
-    <div class="or-divider" style="margin-top:16px">またはCSVファイルを選択</div>
+    <div class="or-divider" style="margin-top:20px">またはCSVファイルを選択</div>
     <div class="drop-zone" id="drop-zone" style="margin-top:12px;padding:24px 16px">
-      <div class="label" style="font-size:0.8rem">📂 ファイルを選択</div>
+      <div class="label" style="font-size:0.875rem">📂 ファイルを選択</div>
     </div>
   </div>
 
@@ -788,7 +932,7 @@
       <div id="advice-box"></div>
       <div class="section-header">
         <h2>今日の練習メニュー</h2>
-        <button class="btn" id="btn-reroll">🎲 リロール</button>
+        <button class="btn-secondary" id="btn-reroll">🎲 リロール</button>
       </div>
       <div id="menu-list"></div>
     </div>
@@ -803,7 +947,7 @@
       <div class="filter-row" id="upgrade-level-filters"></div>
       <div id="upgrade-list"></div>
       <div class="load-more-wrap" id="upgrade-more-wrap" style="display:none">
-        <button class="btn" id="btn-upgrade-more">もっと見る</button>
+        <button class="btn-secondary" id="btn-upgrade-more">もっと見る</button>
       </div>
     </div>
 
@@ -815,12 +959,12 @@
       </div>
       <div class="filter-row" id="noplay-level-filters"></div>
       <div style="margin-bottom:12px">
-        <button class="btn" id="btn-random3">🎲 ランダム3曲</button>
+        <button class="btn-secondary" id="btn-random3">🎲 ランダム3曲</button>
       </div>
       <div id="random-picks" style="margin-bottom:12px"></div>
       <div id="noplay-list"></div>
       <div class="load-more-wrap" id="noplay-more-wrap" style="display:none">
-        <button class="btn" id="btn-noplay-more">もっと見る</button>
+        <button class="btn-secondary" id="btn-noplay-more">もっと見る</button>
       </div>
     </div>
 
@@ -948,14 +1092,14 @@ const CLEAR_TYPES = [
 ];
 
 const CLEAR_COLORS = {
-  'NO PLAY': '#6b7280',
-  'FAILED': '#ef4444',
-  'ASSIST CLEAR': '#a855f7',
-  'EASY CLEAR': '#22c55e',
-  'CLEAR': '#3b82f6',
-  'HARD CLEAR': '#f59e0b',
-  'EX HARD CLEAR': '#eab308',
-  'FULLCOMBO CLEAR': '#f0abfc',
+  'NO PLAY': '#999999',
+  'FAILED': '#fa0000',
+  'ASSIST CLEAR': '#8843e1',
+  'EASY CLEAR': '#259d63',
+  'CLEAR': '#3460fb',
+  'HARD CLEAR': '#e25100',
+  'EX HARD CLEAR': '#b78f00',
+  'FULLCOMBO CLEAR': '#db00db',
 };
 
 const CLEAR_SHORT = {
@@ -983,11 +1127,11 @@ const SP12_RANKS = [
 ];
 
 const SP12_RANK_COLORS = [
-  '#dc2626','#dc2626','#ea580c','#ea580c',
-  '#d97706','#d97706','#65a30d','#65a30d',
-  '#0d9488','#0d9488','#2563eb','#2563eb',
-  '#60a5fa','#60a5fa','#7c8ba0','#7c8ba0',
-  '#9ca3af','#9ca3af','#d1d5db','#4b5563'
+  '#ce0000','#ce0000','#c74700','#c74700',
+  '#a58000','#a58000','#1d8b56','#1d8b56',
+  '#008da6','#008da6','#0031d8','#0031d8',
+  '#3460fb','#3460fb','#666666','#666666',
+  '#999999','#999999','#b3b3b3','#4d4d4d'
 ];
 
 // Rank options for bingo (地力 ranks only, not 個人差)
@@ -1004,8 +1148,6 @@ let sp12Available = false;
 let userSkillLevel = null;
 
 function parseDifficultyBlock(cols, offset) {
-  // offset: starting column index for the difficulty block
-  // 7 columns: 難易度, スコア, PGreat, Great, ミスカウント, クリアタイプ, DJ LEVEL
   const levelStr = cols[offset];
   const level = levelStr && levelStr !== '0' ? parseInt(levelStr, 10) : null;
   if (!level) return null;
@@ -1023,10 +1165,6 @@ function processCSV(text) {
   const rows = parseCSV(text);
   if (rows.length < 2) throw new Error('CSVデータが不足しています');
 
-  // Check header row
-  const header = rows[0];
-  // The CSV should have version, title, genre, artist, play count, then difficulty blocks
-
   const songs = [];
   for (let r = 1; r < rows.length; r++) {
     const cols = rows[r];
@@ -1037,16 +1175,6 @@ function processCSV(text) {
     const genre = cols[2];
     const artist = cols[3];
     const playCount = parseInt(cols[4], 10) || 0;
-
-    // Difficulty blocks: NORMAL(5-11), HYPER(12-18), ANOTHER(19-25), LEGGENDARIA(26-32) — 0-indexed after first 5 cols
-    // Actually: 5 base cols + 5 difficulties * 7 cols = 40 + last play datetime = 41
-    // Columns: 0=ver, 1=title, 2=genre, 3=artist, 4=playcount
-    // BEGINNER: 5-11 (7 cols)
-    // NORMAL:   12-18
-    // HYPER:    19-25
-    // ANOTHER:  26-32
-    // LEGGENDARIA: 33-39
-    // Last play: 40
 
     const another = parseDifficultyBlock(cols, 26);
     const leggendaria = parseDifficultyBlock(cols, 33);
@@ -1138,7 +1266,6 @@ async function fetchSP12Data() {
     }
   }
 
-  // Return cached data even if expired, as fallback
   if (cached) return cached.sheets;
   return null;
 }
@@ -1168,16 +1295,13 @@ function matchSongToSP12(song, sp12Map) {
   if (song.level !== 12 || song.difficulty !== 'ANOTHER') return null;
   const norm = normalizeTitle(song.title);
 
-  // Pass 1: exact normalized match
   if (sp12Map.has(norm)) return sp12Map.get(norm);
 
-  // Pass 2: strip dagger and retry
   const noDagger = norm.replace(/†/g, '').trim();
   for (const [key, val] of sp12Map) {
     if (key.replace(/†/g, '').trim() === noDagger) return val;
   }
 
-  // Pass 3: substring containment
   for (const [key, val] of sp12Map) {
     if (key.length > 3 && norm.length > 3) {
       if (key.includes(norm) || norm.includes(key)) return val;
@@ -1226,7 +1350,6 @@ function estimateSkillLevel() {
     }
   }
 
-  // Scan from easy (18) to hard (0), find hardest rank with >=50% clear rate
   userSkillLevel = null;
   for (let rank = 18; rank >= 0; rank--) {
     if (tiers[rank].total < 2) continue;
@@ -1253,7 +1376,7 @@ function renderSkillLevel() {
 }
 
 function getRankColor(rank) {
-  return SP12_RANK_COLORS[rank] || '#4b5563';
+  return SP12_RANK_COLORS[rank] || '#4d4d4d';
 }
 
 // ============================================================
@@ -1287,7 +1410,6 @@ fileInput.addEventListener('change', () => {
 function handleFile(file) {
   parseError.textContent = '';
 
-  // Try Shift_JIS first, then UTF-8
   const reader1 = new FileReader();
   reader1.onload = () => {
     try {
@@ -1396,7 +1518,6 @@ async function initApp() {
     appInitialized = true;
   }
 
-  // Render immediately with existing data
   renderMenu();
   renderAdvice();
   initUpgradeTab();
@@ -1404,13 +1525,11 @@ async function initApp() {
   renderStats();
   renderBingoTab();
 
-  // Refresh bingo from updated song data
   const bingoState = loadBingoState();
   if (bingoState) {
     refreshBingoFromSongData(bingoState);
   }
 
-  // Async SP12 fetch
   const skillEl = document.getElementById('skill-level');
   skillEl.innerHTML = '<span class="sp12-status loading">SP12データ読み込み中...</span>';
 
@@ -1421,7 +1540,6 @@ async function initApp() {
       sp12Available = true;
       estimateSkillLevel();
 
-      // Re-render all tabs with enriched data
       renderMenu();
       renderAdvice();
       renderUpgradeList();
@@ -1429,7 +1547,6 @@ async function initApp() {
       renderStats();
       renderBingoTab();
 
-      // Refresh bingo marks with new data
       const bs = loadBingoState();
       if (bs) {
         refreshBingoFromSongData(bs);
@@ -1514,9 +1631,6 @@ function generateMenu() {
   const sections = [];
 
   if (sp12Available && userSkillLevel !== null) {
-    // === SP12-aware recommendations ===
-
-    // Warmup: 2-3 ranks easier than user's level, not yet hard-cleared
     const warmupRankMin = Math.min(userSkillLevel + 2, 18);
     const warmupRankMax = Math.min(userSkillLevel + 4, 18);
     let warmupPool = allSongs.filter(s =>
@@ -1524,7 +1638,6 @@ function generateMenu() {
       s.sp12.hard >= warmupRankMin && s.sp12.hard <= warmupRankMax &&
       ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
     );
-    // Include adjacent 個人差 ranks too
     if (warmupPool.length < 4) {
       warmupPool = allSongs.filter(s =>
         s.level === 12 && s.sp12 &&
@@ -1532,7 +1645,6 @@ function generateMenu() {
         ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
       );
     }
-    // Fallback to ☆11 if not enough ☆12 warmup songs
     if (warmupPool.length < 2) {
       warmupPool = allSongs.filter(s =>
         s.level === 11 && ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
@@ -1547,12 +1659,10 @@ function generateMenu() {
       songs: warmup
     });
 
-    // Almost there: FAILED near skill boundary (±1 rank)
     const almostPool = allSongs.filter(s =>
       s.level === 12 && s.sp12 && s.clearType === 'FAILED' && s.miss !== null &&
       s.sp12.hard >= userSkillLevel - 1 && s.sp12.hard <= userSkillLevel + 2
     ).sort((a, b) => a.miss - b.miss);
-    // If not enough SP12-matched FAILED songs, include ☆11+ fallback
     let almostFallback = [];
     if (almostPool.length < 3) {
       almostFallback = allSongs
@@ -1567,13 +1677,12 @@ function generateMenu() {
       songs: almostPicked
     });
 
-    // Lamp upgrade: sorted by SP12 rank (easier first)
     const upgradePool = allSongs.filter(s =>
       s.level === 12 && s.sp12 &&
       ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
     );
     upgradePool.sort((a, b) => {
-      const rankDiff = b.sp12.hard - a.sp12.hard; // higher = easier
+      const rankDiff = b.sp12.hard - a.sp12.hard;
       if (rankDiff !== 0) return rankDiff;
       if (a.miss === null) return 1;
       if (b.miss === null) return -1;
@@ -1586,7 +1695,6 @@ function generateMenu() {
       songs: upgradePicked
     });
 
-    // Challenge: 1 rank harder than user's level
     const challengeRank = Math.max(userSkillLevel - 1, 0);
     const challengeRankMax = userSkillLevel;
     const challengePool = allSongs.filter(s =>
@@ -1602,8 +1710,6 @@ function generateMenu() {
     });
 
   } else {
-    // === Fallback: original logic without SP12 ===
-
     const warmup = shuffle(allSongs.filter(s =>
       s.level === 11 &&
       ['EASY CLEAR', 'CLEAR'].includes(s.clearType)
@@ -1689,7 +1795,6 @@ function renderAdvice() {
   const noPlayRate = Math.round(noPlay12 / total12 * 100);
   const playedRate = 100 - noPlayRate;
 
-  // SP12 rank stats
   let sp12Stats = '';
   if (sp12Available) {
     const sp12Songs = lv12.filter(s => s.sp12);
@@ -1706,7 +1811,6 @@ function renderAdvice() {
       else byRank[r].hard++;
     }
 
-    // Find the frontier: highest rank where player has some clears but also many fails/NP
     let frontierRank = -1;
     for (let r = 18; r >= 0; r--) {
       if (byRank[r] && byRank[r].total > 0) {
@@ -1723,7 +1827,6 @@ function renderAdvice() {
 
   const tips = [];
 
-  // Tip 1: Unplayed rate
   if (noPlayRate > 30) {
     tips.push(`☆12未プレイ率 <span class="advice-stat">${noPlayRate}%</span> → <strong>まず触る曲を増やそう</strong>。地力表下位からRANDOMで回すのが最効率`);
   } else if (noPlayRate > 15) {
@@ -1732,17 +1835,14 @@ function renderAdvice() {
     tips.push(`☆12プレイ率 <span class="advice-stat">${playedRate}%</span> → 十分な経験値。ランプ更新に集中しよう`);
   }
 
-  // Tip 2: EASY→HARD balance
   if (easy12 + clear12 > 0 && hard12 < (easy12 + clear12) * 0.3) {
     tips.push(`EASY/CLEAR <span class="advice-stat">${easy12 + clear12}曲</span> HARD以上 <span class="advice-stat">${hard12}曲</span> → <strong>HARD埋めを意識</strong>。BP60以下ならHARD圏内`);
   }
 
-  // Tip 3: Failed songs
   if (failed12 > 10) {
     tips.push(`FAILED <span class="advice-stat">${failed12}曲</span> → 粘着せず幅広く。ミスが少ないFAILED曲から再挑戦が効率的`);
   }
 
-  // Tip 4: General practice tips
   const generalTips = [
     '集中力が切れたら即終了。疲れた練習は逆効果',
     'RANDOM常用で癖防止＆対応力UP。段位本番だけ正規/MIRRORで',
@@ -1778,7 +1878,6 @@ const TRANSITIONS = [
 ];
 
 function initUpgradeTab() {
-  // Transition filters
   const fRow = document.getElementById('upgrade-filters');
   fRow.innerHTML = TRANSITIONS.map(t =>
     `<button class="chip ${t.key === 'all' ? 'active' : ''}" data-val="${t.key}">${t.label}</button>`
@@ -1793,7 +1892,6 @@ function initUpgradeTab() {
     renderUpgradeList();
   });
 
-  // Level filters
   const levels = [...new Set(allSongs.map(s => s.level))].sort((a, b) => a - b);
   const lRow = document.getElementById('upgrade-level-filters');
   lRow.innerHTML = `<button class="chip active" data-val="all">全☆</button>` +
@@ -1822,20 +1920,17 @@ function getUpgradeSongs() {
     return true;
   });
 
-  // Filter by transition
   const tr = upgradeState.transition;
   if (tr === 'easy_clear') songs = songs.filter(s => s.clearType === 'EASY CLEAR');
   else if (tr === 'clear_hard') songs = songs.filter(s => s.clearType === 'CLEAR');
   else if (tr === 'failed_easy') songs = songs.filter(s => s.clearType === 'FAILED');
   else if (tr === 'hard_exhard') songs = songs.filter(s => s.clearType === 'HARD CLEAR');
 
-  // Filter by level
   if (upgradeState.level !== 'all') {
     const lv = parseInt(upgradeState.level, 10);
     songs = songs.filter(s => s.level === lv);
   }
 
-  // Sort by miss count ascending (null last)
   songs.sort((a, b) => {
     if (a.miss === null && b.miss === null) return 0;
     if (a.miss === null) return 1;
@@ -2000,7 +2095,6 @@ function isLampAchieved(clearType, targetLamp) {
 function smartTargetLamp(song, userRank) {
   const ct = song.clearType;
   const songRank = song.sp12 ? song.sp12.hard : 18;
-  // relDiff > 0: song is easier, < 0: song is harder
   const relDiff = songRank - userRank;
 
   if (ct === 'FULLCOMBO CLEAR') return null;
@@ -2012,7 +2106,6 @@ function smartTargetLamp(song, userRank) {
   }
 
   if (ct === 'EASY CLEAR') {
-    // Easier song → aim higher
     return relDiff >= 2 ? 'HARD CLEAR' : 'CLEAR';
   }
 
@@ -2020,16 +2113,14 @@ function smartTargetLamp(song, userRank) {
     return 'EASY CLEAR';
   }
 
-  // NO PLAY or FAILED
-  if (relDiff >= 3) return 'HARD CLEAR';   // much easier
-  if (relDiff >= 1) return 'CLEAR';         // somewhat easier
-  return 'EASY CLEAR';                      // at or above level
+  if (relDiff >= 3) return 'HARD CLEAR';
+  if (relDiff >= 1) return 'CLEAR';
+  return 'EASY CLEAR';
 }
 
 function generateBingoCard() {
   const rank = userSkillLevel >= 0 ? userSkillLevel : 18;
 
-  // Wide pool: ±4 ranks, exclude FULLCOMBO and songs with no upgrade
   const pool = allSongs.filter(s =>
     s.level === 12 && s.sp12 && s.sp12.hard < 19 &&
     Math.abs(s.sp12.hard - rank) <= 4 &&
@@ -2038,12 +2129,10 @@ function generateBingoCard() {
 
   if (pool.length < 9) return null;
 
-  // Categorize by relative difficulty
-  const easier = pool.filter(s => s.sp12.hard - rank >= 2);  // easier songs
-  const atLevel = pool.filter(s => Math.abs(s.sp12.hard - rank) <= 1); // around level
-  const harder = pool.filter(s => rank - s.sp12.hard >= 2);  // harder songs
+  const easier = pool.filter(s => s.sp12.hard - rank >= 2);
+  const atLevel = pool.filter(s => Math.abs(s.sp12.hard - rank) <= 1);
+  const harder = pool.filter(s => rank - s.sp12.hard >= 2);
 
-  // Aim for balanced mix: ~3 easier + ~4 at level + ~2 harder
   const pick = (arr, n) => shuffle(arr).slice(0, n);
   let selected = [];
 
@@ -2053,7 +2142,6 @@ function generateBingoCard() {
     9 - easyPick.length - hardPick.length);
   selected = [...easyPick, ...levelPick, ...hardPick];
 
-  // Fill remaining from full pool if needed
   if (selected.length < 9) {
     const remaining = pool.filter(s => !selected.includes(s));
     selected = [...selected, ...pick(remaining, 9 - selected.length)];
@@ -2061,7 +2149,6 @@ function generateBingoCard() {
 
   if (selected.length < 9) return null;
 
-  // Shuffle final order
   selected = shuffle(selected);
 
   const songs = selected.map(s => {
@@ -2089,17 +2176,14 @@ function countBingoLines(songs) {
   let lines = 0;
   const lineIndices = [];
 
-  // 3 rows
   for (let r = 0; r < 3; r++) {
     const indices = [r*3, r*3+1, r*3+2];
     if (indices.every(i => grid[i])) { lines++; lineIndices.push(indices); }
   }
-  // 3 columns
   for (let c = 0; c < 3; c++) {
     const indices = [c, c+3, c+6];
     if (indices.every(i => grid[i])) { lines++; lineIndices.push(indices); }
   }
-  // 2 diagonals
   const diag1 = [0,4,8];
   const diag2 = [2,4,6];
   if (diag1.every(i => grid[i])) { lines++; lineIndices.push(diag1); }
@@ -2130,10 +2214,9 @@ function renderBingoTab() {
 
   const state = loadBingoState();
 
-  // Controls - just a generate button
   const skillLabel = userSkillLevel >= 0 ? SP12_RANKS[userSkillLevel] : '未推定';
   let html = `<div class="bingo-controls">`;
-  html += `<span style="color:#94a3b8;font-size:0.85rem;">推定地力: ${skillLabel} 付近から出題</span>`;
+  html += `<span style="color:var(--color-text-secondary);font-size:0.875rem;">推定地力: ${skillLabel} 付近から出題</span>`;
   html += `<button class="btn" id="btn-new-bingo">🎲 生成</button>`;
   html += `</div>`;
 
@@ -2154,14 +2237,14 @@ function renderBingoTab() {
       if (cell.marked) classes.push('marked');
       if (lineSet.has(i) && cell.marked) classes.push('bingo-line-highlight');
 
-      const targetColor = cell.targetLamp ? CLEAR_COLORS[cell.targetLamp] : '#22c55e';
-      const bg = cell.marked ? `background:${targetColor};` : '';
+      const targetColor = cell.targetLamp ? CLEAR_COLORS[cell.targetLamp] : '#259d63';
+      const bg = cell.marked ? `background:${targetColor};color:#fff;` : '';
       const targetLabel = cell.targetLamp ? CLEAR_SHORT[cell.targetLamp] : '';
       const targetBorder = !cell.marked && cell.targetLamp ? `border-color:${targetColor};` : '';
 
       html += `<div class="${classes.join(' ')}" data-idx="${i}" style="${bg}${targetBorder}">
         <span class="bingo-cell-title">${escapeHtml(cell.title)}</span>
-        <span class="bingo-cell-rank"><span style="color:${targetColor}">${targetLabel}</span> ${cell.rankString || ''}</span>
+        <span class="bingo-cell-rank"><span style="color:${cell.marked ? '#fff' : targetColor}">${targetLabel}</span> ${cell.rankString || ''}</span>
       </div>`;
     }
     html += `</div>`;
@@ -2171,7 +2254,6 @@ function renderBingoTab() {
 
   container.innerHTML = html;
 
-  // Event: generate new card
   document.getElementById('btn-new-bingo').addEventListener('click', () => {
     const card = generateBingoCard();
     if (!card) {
@@ -2186,7 +2268,6 @@ function renderBingoTab() {
     renderBingoTab();
   });
 
-  // Event: click cells to toggle
   container.querySelectorAll('.bingo-cell').forEach(el => {
     el.addEventListener('click', () => {
       const idx = parseInt(el.dataset.idx, 10);
@@ -2221,9 +2302,9 @@ function renderCrossTable() {
     html += `<tr><td>☆${lv}</td>`;
     for (const ct of CLEAR_TYPES) {
       const v = counts[ct];
-      html += `<td class="${v === 0 ? 'cell-zero' : ''}" style="${v > 0 ? 'color:' + CLEAR_COLORS[ct] : ''}">${v}</td>`;
+      html += `<td class="${v === 0 ? 'cell-zero' : ''}" style="${v > 0 ? 'color:' + CLEAR_COLORS[ct] + ';font-weight:700' : ''}">${v}</td>`;
     }
-    html += `<td>${total}</td></tr>`;
+    html += `<td style="font-weight:700">${total}</td></tr>`;
   }
 
   html += '</tbody>';
